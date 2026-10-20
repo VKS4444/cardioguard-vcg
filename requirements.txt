@@ -1,0 +1,9 @@
+# CardioGuard v4.0 — Python dependencies
+# All standard-library only (http.server, sqlite3, json, os, datetime, webbrowser)
+# No pip install needed to run the backend.
+
+# Optional: for data analysis or local testing
+# numpy>=1.24
+# scipy>=1.10
+# matplotlib>=3.7
+# pandas>=2.0

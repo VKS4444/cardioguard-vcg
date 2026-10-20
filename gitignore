@@ -1,0 +1,47 @@
+# Database files (may contain patient data — never commit)
+*.db
+*.sqlite
+*.sqlite3
+cardioguard_v4.db
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+venv/
+.venv/
+env/
+.env
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Logs
+*.log
+
+# Data (patient/clinical data must never be committed)
+data/raw/
+data/processed/
+*.csv
+*.edf
+*.mat
+
+# Temp
+*.tmp
+*.bak

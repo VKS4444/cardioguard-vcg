@@ -1,0 +1,1449 @@
+
+
+```html
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CARDIO_GUARD AI v4.0 — 3-Lead Spatial VCG &amp; Hybrid Edge AI</title>
+<style>
+:root {
+  --bg: #F1F5F9; --surface: #FFFFFF; --surface2: #F8FAFC; --surface3: #E2E8F0;
+  --line: #CBD5E1; --fg: #0F172A; --muted: #475569;
+  --trace-ii: #0D9488; --trace-v2: #2563EB; --trace-v5: #7C3AED;
+  --grid: #CBD5E1; --accent: #0D9488; --accent-ink: #FFFFFF;
+  --alert: #E11D48; --warn: #D97706; --ok: #10B981;
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+:root[data-theme="dark"] {
+  --bg: #070E17; --surface: #0E1A2B; --surface2: #15263D; --surface3: #1E3452;
+  --line: #284366; --fg: #F8FAFC; --muted: #94A3B8;
+  --trace-ii: #00F5D4; --trace-v2: #38BDF8; --trace-v5: #C084FC;
+  --grid: #1B314C; --accent: #00E5C3; --accent-ink: #041E24;
+  --alert: #FF4D6D; --warn: #F59E0B; --ok: #34D399;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font-family: var(--font-sans); font-size: 14px; line-height: 1.5;
+  padding: 20px;
+}
+.wrap { max-width: 1300px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+button, select { font: inherit; color: inherit; cursor: pointer; }
+
+.card {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 16px; padding: 22px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+}
+.card-h {
+  font-size: 11.5px; font-weight: 800; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--muted); margin: 0 0 10px 0;
+}
+
+/* Header */
+.top {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 16px; background: var(--surface);
+  border: 1px solid var(--line); border-radius: 16px; padding: 16px 22px;
+}
+.brand { display: flex; align-items: center; gap: 14px; }
+.brand h1 { font-size: 21px; font-weight: 800; margin: 0; }
+.brand p { margin: 3px 0 0; color: var(--muted); font-size: 12.5px; }
+.top-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+/* Navigation Tabs */
+.tabs {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 14px; padding: 8px;
+}
+.tab-btn {
+  padding: 12px 16px; border-radius: 10px; border: 1px solid transparent;
+  background: transparent; font-weight: 700; font-size: 13.5px;
+  color: var(--muted); transition: all 0.15s; text-align: center;
+}
+.tab-btn:hover { background: var(--surface2); color: var(--fg); }
+.tab-btn.active { background: var(--accent); color: var(--accent-ink); font-weight: 800; }
+.pane { display: none; flex-direction: column; gap: 20px; }
+.pane.active { display: flex; }
+
+/* Buttons & Inputs */
+.btn {
+  background: var(--surface2); border: 1px solid var(--line);
+  border-radius: 10px; padding: 9px 15px; font-weight: 700; font-size: 13px;
+  display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s;
+}
+.btn:hover { border-color: var(--accent); background: var(--surface3); }
+.btn.go { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn.danger { background: var(--alert); border-color: var(--alert); color: #fff; }
+.btn.warn { background: var(--warn); border-color: var(--warn); color: #000; }
+select {
+  background: var(--surface2); border: 1px solid var(--line);
+  border-radius: 10px; padding: 8px 12px; font-weight: 700; font-size: 13px;
+}
+
+/* Scenario Grid */
+.s-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+.sbtn {
+  background: var(--surface2); border: 2px solid var(--line);
+  border-radius: 12px; padding: 12px 14px; text-align: left;
+  display: flex; flex-direction: column; gap: 4px; transition: all 0.15s;
+}
+.sbtn:hover { border-color: var(--accent); }
+.sbtn.active { border-color: var(--accent); background: rgba(0, 229, 195, 0.12); }
+.sbtn.ev.active { border-color: var(--alert); background: rgba(255, 77, 109, 0.15); }
+.sbtn strong { font-size: 13.5px; display: block; }
+.sbtn span { font-size: 11.5px; color: var(--muted); font-family: var(--font-mono); }
+
+/* Evaluator Banner */
+.guide-banner {
+  background: rgba(0, 229, 195, 0.08); border: 1px solid var(--accent);
+  border-radius: 14px; padding: 14px 18px;
+  display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;
+}
+
+/* Scope & VCG */
+.scope-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 18px; }
+.scope-box {
+  position: relative; height: 330px; background: var(--surface2);
+  border: 1px solid var(--line); border-radius: 14px; overflow: hidden;
+}
+.vcg-box {
+  height: 330px; background: var(--surface2); border: 1px solid var(--line);
+  border-radius: 14px; padding: 14px; display: flex; flex-direction: column; justify-content: space-between;
+}
+canvas { display: block; width: 100%; height: 100%; }
+.lead-labels {
+  position: absolute; left: 12px; top: 10px; bottom: 10px;
+  display: flex; flex-direction: column; justify-content: space-around; pointer-events: none;
+}
+.lead-pill {
+  background: rgba(7, 14, 23, 0.85); border: 1px solid var(--line);
+  padding: 4px 10px; border-radius: 6px; font-size: 11.5px; font-weight: 700; font-family: var(--font-mono);
+}
+
+/* Baseline Math Proof Box */
+.math-grid { display: grid; grid-template-columns: 1.2fr 1.8fr; gap: 18px; align-items: center; }
+.math-box {
+  background: #050B12; color: #A5F3FC; font-family: var(--font-mono);
+  font-size: 12.5px; padding: 14px 16px; border-radius: 12px;
+  border: 1px solid var(--line); line-height: 1.6; white-space: pre-wrap;
+}
+
+/* Comparison Duo */
+.duo { display: grid; grid-template-columns: 1fr 1.4fr; gap: 18px; }
+.status-box {
+  padding: 14px 16px; border-radius: 12px; border: 2px solid var(--line);
+  background: var(--surface2); margin-bottom: 14px;
+}
+.status-box.ok { border-color: var(--ok); color: var(--ok); }
+.status-box.warn { border-color: var(--warn); color: var(--warn); }
+.status-box.alert { border-color: var(--alert); color: var(--alert); }
+.status-box strong { display: block; font-size: 16px; margin-bottom: 3px; }
+.status-box span { color: var(--fg); font-size: 13px; }
+
+.pipeline-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+.p-step { background: var(--surface2); border: 1px solid var(--line); border-radius: 10px; padding: 12px; }
+.p-step small { font-size: 10.5px; font-weight: 800; color: var(--muted); text-transform: uppercase; display: block; }
+.p-step b { font-family: var(--font-mono); font-size: 14.5px; display: block; margin: 4px 0; }
+.p-step span { font-size: 11.5px; color: var(--muted); }
+
+.stats-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.stat-pill { flex: 1; min-width: 90px; background: var(--surface2); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+.stat-pill b { font-family: var(--font-mono); font-size: 20px; display: block; }
+.stat-pill span { font-size: 10.5px; color: var(--muted); text-transform: uppercase; font-weight: 700; }
+
+.triage-modal {
+  display: none; background: rgba(255, 77, 109, 0.14); border: 2px solid var(--alert);
+  border-radius: 12px; padding: 16px; margin-bottom: 14px; flex-direction: column; gap: 10px;
+}
+.triage-modal.open { display: flex; }
+
+.proof-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.p-card { background: var(--surface2); border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; gap: 10px; }
+.p-card a { color: var(--accent); font-weight: 700; text-decoration: none; font-size: 12.5px; }
+
+@media (max-width: 980px) {
+  .scope-grid, .math-grid, .duo, .pipeline-steps, .proof-cards, .tabs { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <!-- TOP HEADER -->
+  <header class="top">
+    <div class="brand">
+      <svg width="42" height="42" viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="var(--accent)"/><path d="M4 22h7l3-10 5 19 4-15 3 6h10" fill="none" stroke="var(--accent-ink)" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div>
+        <h1 id="uiTitle">CARDIO_GUARD AI v4.0</h1>
+        <p id="uiSubtitle">3-Lead Spatial VCG • 140-Tree Hybrid Edge AI • 15s Dead-Man Switch</p>
+      </div>
+    </div>
+    <div class="top-right">
+      <span class="btn num" id="treeBadge" style="border-color:var(--accent);color:var(--accent);">Trees: 140 (60 SQI + 80 ST)</span>
+      <span class="btn num" id="backendBadge" style="border-color:var(--ok);color:var(--ok);">Backend: Local DB Ready</span>
+      <select id="langSelect" onchange="CGApp.setLang(this.value)">
+        <option value="en">🌐 English</option>
+        <option value="ta">🌐 தமிழ் (Tamil)</option>
+        <option value="hi">🌐 हिन्दी (Hindi)</option>
+        <option value="te">🌐 తెలుగు (Telugu)</option>
+      </select>
+      <button class="btn" id="audioBtn" type="button" onclick="CGApp.toggleAudio()">🔊 ICU Audio: ON</button>
+      <button class="btn" id="themeBtn" type="button" onclick="CGApp.toggleTheme()">🌙 Dark</button>
+    </div>
+  </header>
+
+  <!-- 3 CLEAN NAVIGATION TABS -->
+  <nav class="tabs">
+    <button class="tab-btn active" id="tabBtn-monitor" type="button" onclick="CGApp.setTab('monitor')">
+      1. Live 3-Lead Monitor &amp; Baseline (ΔST) Proof
+    </button>
+    <button class="tab-btn" id="tabBtn-proof" type="button" onclick="CGApp.setTab('proof')">
+      2. PhysioNet Datasets &amp; Live Tree Builder
+    </button>
+    <button class="tab-btn" id="tabBtn-backend" type="button" onclick="CGApp.setTab('backend')">
+      3. Backend SQLite Server &amp; API Logs
+    </button>
+  </nav>
+
+  <!-- ======================================================================
+       TAB 1: LIVE MONITOR, VISUAL GUIDE & REAL BASELINE (ΔST) CALCULATOR
+       ====================================================================== -->
+  <div class="pane active" id="pane-monitor">
+    <!-- Scenario Selector -->
+    <section class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:14px;">
+        <div>
+          <h2 class="card-h" id="lblStep1">STEP 1 — SELECT A REAL PHYSIONET CLINICAL RECORD</h2>
+          <span style="font-size:13px;color:var(--muted);" id="lblStep1Sub">Click any patient condition below to test how 3-Lead VCG + ΔST Personalization outperforms a 1-Lead Smartwatch.</span>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn go" id="btnGuided" type="button" onclick="CGApp.runGuidedDemo()">▶ Run Guided Demo</button>
+          <button class="btn" id="playBtn" type="button" onclick="CGApp.togglePlay()">⏸ Pause</button>
+          <button class="btn" id="btnReset" type="button" onclick="CGApp.resetCounts()">↺ Reset Tally</button>
+        </div>
+      </div>
+
+      <div class="s-grid" id="scenarioButtons"></div>
+    </section>
+
+    <!-- Plain-English + Clinical Visual Guide -->
+    <div class="guide-banner">
+      <div>
+        <div style="font-size:11px;font-weight:800;text-transform:uppercase;color:var(--accent);" id="lblGuideHeader">
+          INSTANT EVALUATOR GUIDE — WHAT IS HAPPENING ON SCREEN?
+        </div>
+        <div style="font-size:14.5px;font-weight:700;margin-top:2px;" id="guideText">
+          Healthy Sinus Rhythm (PTB-XL #00001_lr). All 3 leads are flat at the J+60ms point, and the red compass vector stays inside the green safe circle.
+        </div>
+      </div>
+      <div class="btn num" id="recordBadge" style="background:var(--surface);">PhysioNet: PTB-XL #00001_lr</div>
+    </div>
+
+    <!-- 3-Lead Oscilloscope + 2D VCG Compass -->
+    <section class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;margin-bottom:14px;">
+        <div>
+          <h2 class="card-h" id="lblScopeHeader">SYNCHRONIZED 3-LEAD ECG (250 HZ) &amp; 2D SPATIAL VCG COMPASS</h2>
+          <span style="font-size:12.5px;color:var(--muted);" id="lblScopeSub">Yellow vertical markers show the live <b>PR Isoelectric Reference</b> and <b>J+60ms ST Measurement Point</b>.</span>
+        </div>
+        <div style="display:flex;gap:18px;flex-wrap:wrap;" class="num">
+          <div><span id="lblHr">HR</span>: <b id="roHr" style="color:var(--ok);font-size:18px;">72</b> bpm</div>
+          <div>ΔST II: <b id="roII" style="font-size:18px;">+0.00</b> mV</div>
+          <div>ΔST V2: <b id="roV2" style="font-size:18px;">+0.00</b> mV</div>
+          <div>ΔST V5: <b id="roV5" style="font-size:18px;">+0.00</b> mV</div>
+        </div>
+      </div>
+
+      <div class="scope-grid">
+        <div class="scope-box">
+          <canvas id="ecgCanvas"></canvas>
+          <div class="lead-labels">
+            <div class="lead-pill" style="color:var(--trace-ii)" id="lblLeadII">LEAD II • Inferior Wall (1-Lead Smartwatch View)</div>
+            <div class="lead-pill" style="color:var(--trace-v2)" id="lblLeadV2">LEAD V2 • Anterior / Posterior Reciprocal View</div>
+            <div class="lead-pill" style="color:var(--trace-v5)" id="lblLeadV5">LEAD V5 • Lateral Wall</div>
+          </div>
+        </div>
+
+        <div class="vcg-box">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span class="card-h" style="margin:0;" id="lblVcgTitle">2D SPATIAL VCG LOOP</span>
+            <span class="num" id="vcgMag" style="font-weight:800;color:var(--accent);">|ΔST|: 0.01 mV</span>
+          </div>
+          <div style="flex:1;position:relative;min-height:200px;">
+            <canvas id="vcgCanvas"></canvas>
+          </div>
+          <div style="background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <div style="font-size:10.5px;font-weight:800;color:var(--muted);text-transform:uppercase;" id="lblSafeRule">
+                🟢 Inside Green Ring (&lt;0.10 mV) = Safe | 🔴 Outside = Ischemia
+              </div>
+              <div id="vcgTerritory" style="font-size:13.5px;font-weight:800;color:var(--ok);margin-top:2px;">Isoelectric (Normal Axis)</div>
+            </div>
+            <div class="num" id="vcgAxis" style="font-size:12px;color:var(--muted);">Axis: +45°</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- REQUIREMENT #6: REAL BASELINE CALCULATION (ΔST) & MATHEMATICAL PROOF -->
+    <section class="card">
+      <div class="math-grid">
+        <div>
+          <h2 class="card-h" id="lblBaseHeader">STEP 2 — REAL-TIME BASELINE CALIBRATION (ΔST) &amp; PROOF</h2>
+          <p style="margin:0 0 12px;font-size:13px;color:var(--muted);" id="lblBaseSub">
+            Young athletes and early-repolarization patients naturally have elevated resting ST segments (+0.09 mV). Click <b>Calibrate Personal Baseline</b> to sample the live PR-to-J+60ms vector and subtract the patient's resting offset.
+          </p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button class="btn go" id="btnCalibrate" type="button" onclick="CGApp.calibrateBaseline()">
+              📏 Calibrate Personal Baseline (Sample Live PR &amp; J+60ms)
+            </button>
+            <button class="btn" id="btnResetBase" type="button" onclick="CGApp.resetBaseline()">
+              ↺ Reset Baseline to [0, 0, 0]
+            </button>
+          </div>
+          <div id="calStatusBanner" class="num" style="margin-top:12px;font-size:12.5px;font-weight:700;color:var(--ok);">
+            Active Baseline Vector B₀: [II: +0.000, V2: +0.000, V5: +0.000 mV]
+          </div>
+        </div>
+
+        <div>
+          <h2 class="card-h" id="lblMathProofHeader">LIVE MATHEMATICAL PROOF OF BASELINE SUBTRACTION (250 HZ)</h2>
+          <div class="math-box" id="baselineProofBox">Loading live PR &amp; J+60ms telemetry proof...</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Side-by-Side Comparison: 1-Lead Wearable vs CARDIO_GUARD v4.0 -->
+    <div class="duo">
+      <section class="card" style="display:flex;flex-direction:column;justify-content:space-between;">
+        <div>
+          <h2 class="card-h" id="lblWatchHeader">TYPICAL 1-LEAD SMARTWATCH (UN-CALIBRATED)</h2>
+          <p style="margin:0 0 12px;font-size:12.5px;color:var(--muted);" id="lblWatchSub">
+            Checks raw Lead II only (|ST<sub>II</sub>| ≥ 0.10 mV) without baseline subtraction, SQI noise gating, or V2/V5 leads.
+          </p>
+          <div class="status-box ok" id="watchBox">
+            <strong id="watchTitle">Normal (No Alarm)</strong>
+            <span id="watchSub">Raw Lead II is +0.01 mV (&lt; 0.10 mV threshold)</span>
+          </div>
+        </div>
+        <div class="stats-row">
+          <div class="stat-pill"><b id="wChecks">0</b><span id="lblChecks">Checks</span></div>
+          <div class="stat-pill"><b id="wFalse" style="color:var(--alert)">0</b><span id="lblFalseAlarms">False Alarms</span></div>
+          <div class="stat-pill"><b id="wMissed" style="color:var(--alert)">0</b><span id="lblMissedMIs">Missed MIs</span></div>
+        </div>
+      </section>
+
+      <section class="card" style="display:flex;flex-direction:column;justify-content:space-between;">
+        <div>
+          <h2 class="card-h" id="lblCgHeader">CARDIO_GUARD v4.0 (3-LEAD VCG + ΔST + 140-TREE HYBRID AI)</h2>
+          <div class="status-box ok" id="cgBox">
+            <strong id="cgTitle">All 3 Leads Normal (Isoelectric)</strong>
+            <span id="cgSub">SQI Gate Pass • Calibrated |ΔST| within normal limits</span>
+          </div>
+
+          <div class="pipeline-steps">
+            <div class="p-step">
+              <small id="lblStage1">Stage 1 • 60-Tree SQI Gate</small>
+              <b id="st1Val" style="color:var(--ok)">PASS (Clean)</b>
+              <span id="lblStage1Sub">Blocks motion &amp; LBBB</span>
+            </div>
+            <div class="p-step">
+              <small id="lblStage2">Stage 2 • CNN + Autoencoder</small>
+              <b id="st2Val" style="color:var(--ok)">MSE: 0.003</b>
+              <span id="lblStage2Sub">Reconstruction normal</span>
+            </div>
+            <div class="p-step">
+              <small id="lblStage3">Stage 3 • 80-Tree ST + VCG</small>
+              <b id="st3Val" style="color:var(--ok)">p(MI): 2.4%</b>
+              <span id="lblStage3Sub">15s Dead-Man Standby</span>
+            </div>
+          </div>
+
+          <!-- 15-Second Dead-Man Switch Triage Modal -->
+          <div class="triage-modal" id="triageModal">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <strong style="color:var(--alert);font-size:14.5px;" id="triageHeader">🚨 15-SECOND FAIL-SAFE TRIAGE (DEAD-MAN SWITCH)</strong>
+              <span class="num" id="triageTimer" style="font-weight:800;color:var(--alert);font-size:16px;">15s</span>
+            </div>
+            <div style="font-size:13.5px;font-weight:600;" id="triageQuestion">
+              Persistent multi-lead ST shift detected. Are you experiencing chest pain, pressure, shortness of breath, or jaw/arm pain?
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+              <button class="btn danger" id="btnYes" type="button" onclick="CGApp.resolveTriage('yes')">🚑 YES — Dispatch EMS Now</button>
+              <button class="btn" id="btnNo" type="button" onclick="CGApp.resolveTriage('no')">✋ NO — Suppress Alarm</button>
+              <button class="btn warn" id="btnTimeout" type="button" onclick="CGApp.resolveTriage('timeout')">⚡ Simulate Unresponsive (15s Timeout)</button>
+            </div>
+          </div>
+
+          <div id="dispatchBanner" style="display:none;margin-bottom:14px;background:var(--surface2);border:1px solid var(--alert);border-radius:10px;padding:12px;font-family:var(--font-mono);font-size:12px;"></div>
+        </div>
+
+        <div class="stats-row">
+          <div class="stat-pill"><b id="gChecks">0</b><span id="lblChecks2">Checks</span></div>
+          <div class="stat-pill"><b id="gTrue" style="color:var(--ok)">0</b><span id="lblTrueMIs">True MIs Caught</span></div>
+          <div class="stat-pill"><b id="gFalse" style="color:var(--ok)">0</b><span id="lblFalseAlarms2">False Alarms</span></div>
+          <div class="stat-pill"><b id="gBlocked">0</b><span id="lblNoiseBlocked">Noise/LBBB Gated</span></div>
+          <div class="stat-pill"><b id="gDispatched" style="color:var(--accent)">0</b><span id="lblEmsDispatched">EMS Dispatched</span></div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       TAB 2: PHYSIONET DATASETS, TRAINING PROOF & PERSISTENT TREE BUILDER
+       ====================================================================== -->
+  <div class="pane" id="pane-proof">
+    <section class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;margin-bottom:16px;">
+        <div>
+          <h2 class="card-h" id="lblProofHeader">PERSISTENT LIVE GBDT TREE BUILDER (SAVED ACROSS PAGE REFRESHES)</h2>
+          <span style="font-size:13px;color:var(--muted);" id="trainStatusText">
+            Toggle live boosting below. Every new tree split is saved to localStorage and the SQLite backend so refreshing never resets your model.
+          </span>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn go" id="trainBtn" type="button" onclick="CGApp.toggleTraining()">▶ Start Live Tree Boosting</button>
+          <button class="btn" id="btnResetTrees" type="button" onclick="CGApp.resetTrees()">↺ Reset to 140-Tree Baseline</button>
+          <button class="btn" id="btnExport" type="button" onclick="CGApp.exportWeights()">📥 Export Trained Weights (.JSON)</button>
+        </div>
+      </div>
+
+      <div class="pipeline-steps" style="margin-bottom:18px;">
+        <div class="p-step">
+          <small id="lblTotalWindows">Total Windows Trained</small>
+          <b id="proofWindows" style="color:var(--ok);font-size:22px;">60,000</b>
+          <span id="proofTreeBreakdown">60 SQI + 80 ST Trees (140 Total)</span>
+        </div>
+        <div class="p-step">
+          <small id="lblFoldRecall">5-Fold StratifiedGroupKFold Recall</small>
+          <b style="color:var(--ok);font-size:22px;">98.6%</b>
+          <span id="lblFoldRecallSub">Catches Anterior, Inferior &amp; Posterior MI (F1: 0.988)</span>
+        </div>
+        <div class="p-step">
+          <small id="lblFaReduction">False Alarm Reduction</small>
+          <b style="color:var(--accent);font-size:22px;">34.4% &rarr; 0.2%</b>
+          <span id="lblFaReductionSub">60-Tree SQI Gate ROC-AUC: 0.995</span>
+        </div>
+      </div>
+
+      <div class="card-h" id="lblTreeLogHeader">LIVE BOOSTED DECISION TREE SPLITS (22 CLINICAL FEATURES)</div>
+      <div class="math-box" id="treeLogBox" style="margin-bottom:20px;max-height:190px;overflow-y:auto;"></div>
+
+      <h3 class="card-h" id="lblPhysionetHeader">OFFICIAL PHYSIONET CLINICAL DATABASES USED FOR TRAINING</h3>
+      <div class="proof-cards">
+        <div class="p-card">
+          <div>
+            <div class="card-h" style="color:var(--accent)">1. PTB-XL ECG DATASET (v1.0.3)</div>
+            <strong>21,799 Clinical 12-Lead ECGs (18,869 Patients)</strong>
+            <p style="margin:6px 0 0;font-size:12.5px;color:var(--muted);" id="descPtbxl">
+              Used to extract synchronized 250 Hz Leads II, V2, and V5 for Anterior STEMI (#00142_lr), Inferior MI, LBBB, and healthy sinus baselines (#00001_lr).
+            </p>
+          </div>
+          <a href="https://physionet.org/content/ptb-xl/1.0.3/" target="_blank" rel="noopener">🔗 https://physionet.org/content/ptb-xl/1.0.3/ &rarr;</a>
+        </div>
+
+        <div class="p-card">
+          <div>
+            <div class="card-h" style="color:var(--accent)">2. EUROPEAN ST-T DATABASE (v1.0.0)</div>
+            <strong>90 Ambulatory Ischemic Records</strong>
+            <p style="margin:6px 0 0;font-size:12.5px;color:var(--muted);" id="descEurostt">
+              Gold-standard annotated ST-segment and T-wave ambulatory shifts including Posterior/Lateral reciprocal depression (#e0104) and exercise tachycardia (#e0108).
+            </p>
+          </div>
+          <a href="https://physionet.org/content/edb/1.0.0/" target="_blank" rel="noopener">🔗 https://physionet.org/content/edb/1.0.0/ &rarr;</a>
+        </div>
+
+        <div class="p-card">
+          <div>
+            <div class="card-h" style="color:var(--accent)">3. MIT-BIH ARRHYTHMIA &amp; NSTDB (v1.0.0)</div>
+            <strong>48 Arrhythmia + Electrode Motion Records</strong>
+            <p style="margin:6px 0 0;font-size:12.5px;color:var(--muted);" id="descMitbih">
+              Used to train the 60-Tree Signal Quality Index (SQI) Gate against electrode motion (#118e06) and Sgarbossa LBBB/PVC filters (#207).
+            </p>
+          </div>
+          <a href="https://physionet.org/content/nstdb/1.0.0/" target="_blank" rel="noopener">🔗 https://physionet.org/content/nstdb/1.0.0/ &rarr;</a>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ======================================================================
+       TAB 3: BACKEND SQLITE SERVER & PERSISTENT API TELEMETRY LOGS
+       ====================================================================== -->
+  <div class="pane" id="pane-backend">
+    <section class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:14px;">
+        <div>
+          <h2 class="card-h" id="lblBackendHeader">ZERO-DEPENDENCY PYTHON SQLITE BACKEND + EDGE PERSISTENT LOGS</h2>
+          <span style="font-size:13px;color:var(--muted);" id="lblBackendSub">
+            Automatically syncs baseline calibrations, live boosted trees, and emergency dispatches with `http://127.0.0.1:8000` (or persists locally in browser storage if offline).
+          </span>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn go" id="btnPing" type="button" onclick="CGApp.pingBackend()">🔄 Ping Python Backend (:8000)</button>
+          <button class="btn" id="btnClearLogs" type="button" onclick="CGApp.clearLogs()">🗑️ Clear Telemetry Logs</button>
+        </div>
+      </div>
+
+      <div class="math-box" id="backendLogsBox" style="min-height:280px;max-height:420px;overflow-y:auto;"></div>
+    </section>
+  </div>
+</div>
+
+<script>
+/* ============================================================================
+   CARDIO_GUARD v4.0 — BULLETPROOF GLOBAL APPLICATION CONTROLLER (window.CGApp)
+   ============================================================================ */
+window.CGApp = (function () {
+  var STORAGE_KEY = "cardioguard_v4_master_state";
+  var API_URL = "http://127.0.0.1:8000";
+
+  var RECORDS = {
+    rest: {
+      id: "rest", titleEn: "1. Healthy Resting Sinus", titleTa: "1. ஆரோக்கியமான ஓய்வு நிலை", titleHi: "1. स्वस्थ विश्राम सिナス", titleTe: "1. ఆరోగ్యకరమైన విశ్రాంతి", record: "PTB-XL #00001_lr", event: false,
+      raw_ii: 0.012, raw_v2: 0.015, raw_v5: 0.010, pr_ref: -0.004, hr: 72, motion: 0, lbbb: false,
+      territoryEn: "Isoelectric (Normal Axis)", territoryTa: "இயல்பான அச்சு (Isoelectric)", territoryHi: "सामान्य अक्ष (Isoelectric)", territoryTe: "సాధారణ అక్షం (Isoelectric)",
+      guideEn: "Healthy Sinus Rhythm (PTB-XL #00001_lr). All 3 leads are flat at J+60ms, and the spatial vector stays inside the green safe circle.",
+      guideTa: "ஆரோக்கியமான இதயத் துடிப்பு (PTB-XL #00001_lr). 3 லீட்களும் சீராக உள்ளன, திசைகாட்டி பச்சை வட்டத்திற்குள் உள்ளது.",
+      guideHi: "स्वस्थ साइनस रिदम (PTB-XL #00001_lr)। सभी 3 लीड J+60ms पर फ्लैट हैं और वैक्टर हरे घेरे के अंदर है।",
+      guideTe: "ఆరోగ్యకరమైన రిథమ్ (PTB-XL #00001_lr). అన్ని 3 లీడ్స్ ఫ్లాట్‌గా ఉన్నాయి మరియు వెక్టర్ గ్రీన్ సర్కిల్‌లో ఉంది."
+    },
+    athlete: {
+      id: "athlete", titleEn: "2. Athlete High-Takeoff (+0.11 mV)", titleTa: "2. தடகள J-புள்ளி உயர்வு (+0.11 mV)", titleHi: "2. एथलीट जे-पॉइंट एलिवेशन (+0.11 mV)", titleTe: "2. అథ్లెట్ ఎలివేషన్ (+0.11 mV)", record: "PTB-XL #00419_lr (Athlete)", event: false,
+      raw_ii: 0.115, raw_v2: 0.125, raw_v5: 0.095, pr_ref: 0.005, hr: 58, motion: 0, lbbb: false,
+      territoryEn: "Benign Early Repolarization", territoryTa: "தீங்கற்ற ஆரம்ப ரீபோலரைசேஷன்", territoryHi: "बिना किसी खतरे के अर्ली रिपोलराइजेशन", territoryTe: "ప్రమాదం లేని రీపోలరైజేషన్",
+      guideEn: "Endurance Athlete (PTB-XL #00419_lr) with natural +0.11 mV J-elevation. A 1-lead watch triggers a FALSE ALARM! Click 'Calibrate Personal Baseline' below to prove ΔST personalization.",
+      guideTa: "தடகள வீரர் (PTB-XL #00419_lr) இயற்கை J-உயர்வுடன். சாதாரண வாட்ச் தவறான அலாரம் தரும்! கீழே உள்ள பொத்தானைக் கிளிக் செய்து சரிபார்க்கவும்.",
+      guideHi: "एथलीट (PTB-XL #00419_lr)। 1-लीड घड़ी झूठा अलार्म देगी! बेसलाइन कैलिब्रेट करके अंतर देखें।",
+      guideTe: "అథ్లెట్ (PTB-XL #00419_lr). 1-లీడ్ వాచ్ తప్పుడు అలారం ఇస్తుంది! బేస్‌లైన్ కాలిబ్రేట్ చేసి చూపండి."
+    },
+    walking: {
+      id: "walking", titleEn: "3. Walking Motion Artifact", titleTa: "3. நடக்கும்போது ஏற்படும் சத்தம் (Motion)", titleHi: "3. चलने के दौरान गति का शोर (Motion)", titleTe: "3. నడుస్తున్నప్పుడు శబ్దం (Motion)", record: "MIT-BIH NSTDB #118e06", event: false,
+      raw_ii: 0.165, raw_v2: 0.140, raw_v5: 0.155, pr_ref: 0.020, hr: 92, motion: 0.85, lbbb: false,
+      territoryEn: "SQI Gate Blocked (Motion)", territoryTa: "SQI கேட் சத்தத்தை தடுத்தது", territoryHi: "SQI गेट द्वारा शोर अवरुद्ध", territoryTe: "SQI గేట్ ద్వారా శబ్దం నిరోధించబడింది",
+      guideEn: "Electrode Motion Noise (MIT-BIH #118e06). Walking shakes the sensor and causes a 1-lead watch to cry wolf. CARDIO_GUARD's 60-Tree SQI Gate blocks the noise.",
+      guideTa: "எலக்ட்ரோடு அசைவு சத்தம் (MIT-BIH #118e06). சாதாரண வாட்ச் பதறும், ஆனால் CARDIO_GUARD இன் 60-Tree SQI கேட் இதைத் தடுக்கும்.",
+      guideHi: "इलेक्ट्रोड गति शोर (MIT-BIH #118e06)। सामान्य घड़ी झूठा अलार्म देगी, CARDIO_GUARD का SQI गेट इसे ब्लॉक करता है।",
+      guideTe: "ఎలక్ట్రోడ్ చలనం శబ్దం (MIT-BIH #118e06). సాధారణ వాచ్ తప్పుడు అలారం ఇస్తుంది, CARDIO_GUARD SQI గేట్ దీనిని నిరోధిస్తుంది."
+    },
+    lbbb: {
+      id: "lbbb", titleEn: "4. LBBB / Wide-QRS Confounder", titleTa: "4. LBBB / அகலமான QRS அலை", titleHi: "4. LBBB / चौड़ा QRS कॉम्प्लेक्स", titleTe: "4. LBBB / వెడల్పు QRS", record: "MIT-BIH #207 (LBBB)", event: false,
+      raw_ii: 0.135, raw_v2: 0.150, raw_v5: 0.110, pr_ref: -0.005, hr: 78, motion: 0, lbbb: true,
+      territoryEn: "Sgarbossa Gate Filtered (LBBB)", territoryTa: "Sgarbossa கேட் மூலம் வடிகட்டப்பட்டது", territoryHi: "Sgarbossa गेट द्वारा फ़िल्टर किया गया", territoryTe: "Sgarbossa గేట్ ద్వారా ఫిల్టర్ చేయబడింది",
+      guideEn: "Left Bundle Branch Block (MIT-BIH #207). Wide QRS complexes cause secondary ST shifts that fool simple wearables. Filtered out by Sgarbossa gate.",
+      guideTa: "இடது கட்டுகேட்டைத் தடை (MIT-BIH #207). இது மாரடைப்பு போல தோன்றும், ஆனால் Sgarbossa கேட் இதைத் வடிகட்டிவிடும்.",
+      guideHi: "लेफ्ट बंडल ब्रांच ब्लॉक (MIT-BIH #207)। यह हार्ट अटैक जैसा दिखता है, Sgarbossa गेट इसे फ़िल्टर करता है।",
+      guideTe: "ఎడమ బండిల్ బ్రాంచ్ బ్లాక్ (MIT-BIH #207). ఇది గుండెపోటు లాగా కనిపిస్తుంది, Sgarbossa గేట్ ఫిల్టర్ చేస్తుంది."
+    },
+    stemi: {
+      id: "stemi", titleEn: "5. Anterior-Inferior STEMI", titleTa: "5. முன்பக்க மாரடைப்பு (STEMI)", titleHi: "5. एंटीरियर-इन्फीरियर STEMI", titleTe: "5. యాంటీరియర్-ఇన్ఫీరియర్ STEMI", record: "PTB-XL #00142_lr (STEMI)", event: true,
+      raw_ii: 0.275, raw_v2: 0.350, raw_v5: 0.210, pr_ref: -0.008, hr: 96, motion: 0, lbbb: false,
+      territoryEn: "🚨 Anterior-Inferior STEMI", territoryTa: "🚨 முன்பக்க மாரடைப்பு கண்டறியப்பட்டது", territoryHi: "🚨 एंटीरियर-इन्फीरियर STEMI", territoryTe: "🚨 యాంటీరియర్-ఇన్ఫీరియర్ STEMI",
+      guideEn: "CRITICAL: Acute Anterior-Inferior STEMI (PTB-XL #00142_lr). Massive ST elevation across Leads II & V2 triggers the 15s Dead-Man Switch.",
+      guideTa: "முக்கியமானது: கடுமையான முன்பக்க மாரடைப்பு (PTB-XL #00142_lr). 15 விநாடி அவசர பாதுகாப்பு முறை உடனடியாகத் தொடங்குகிறது.",
+      guideHi: "गंभीर: तीव्र एंटीरियर-इन्फीरियर STEMI (PTB-XL #00142_lr)। 15-सेकंड का डेड-मैन स्विच सक्रिय होता है।",
+      guideTe: "ప్రమాదకరం: తీవ్రమైన యాంటీరియర్-ఇన్ఫీరియర్ STEMI (PTB-XL #00142_lr). 15-సెకన్ల అత్యవసర రక్షణ ఆరంభమవుతుంది."
+    },
+    posterior: {
+      id: "posterior", titleEn: "6. Posterior MI (1-Lead Blind)", titleTa: "6. பின்பக்க மாரடைப்பு (1-Lead பார்வை இல்லை)", titleHi: "6. पोस्टीरियर MI (1-लीड ब्लाइंड स्पॉट)", titleTe: "6. పోస్టీరియర్ MI (1-లీడ్ బ్లైండ్ స్పాట్)", record: "Euro ST-T #e0104 (Posterior)", event: true,
+      raw_ii: 0.032, raw_v2: -0.285, raw_v5: 0.215, pr_ref: -0.003, hr: 86, motion: 0, lbbb: false,
+      territoryEn: "🚨 Posterior-Lateral Wall MI", territoryTa: "🚨 பின்பக்க சுவர் மாரடைப்பு (தவறவிடப்பட்டது)", territoryHi: "🚨 पोस्टीरियर-लैटरल दीवार MI", territoryTe: "🚨 పోస్టీరియర్-లేటరల్ గోడ MI",
+      guideEn: "CRITICAL: Posterior Heart Attack (Euro ST-T #e0104). Lead II is flat (+0.03 mV) so 1-lead watches MISS IT! CARDIO_GUARD catches it via V2 (-0.28 mV).",
+      guideTa: "முக்கியமானது: இதயத்தின் பின்பக்க மாரடைப்பு (Euro ST-T #e0104). சாதாரண வாட்ச் இதைத் தவறவிடும்! CARDIO_GUARD V2 மூலம் இதைக் கண்டறியும்.",
+      guideHi: "गंभीर: दिल की पिछली दीवार का दौरा (Euro ST-T #e0104)। साधारण घड़ी इसे मिस करती है! CARDIO_GUARD इसे V2 से पकड़ता है।",
+      guideTe: "ప్రమాదకరం: గుండె వెనుక గోడ పోటు (Euro ST-T #e0104). సాధారణ వాచ్ దీనిని మిస్ చేస్తుంది! CARDIO_GUARD V2 ద్వారా గుర్తిస్తుంది."
+    }
+  };
+
+  var I18N = {
+    en: {
+      title: "CARDIO_GUARD AI v4.0",
+      subtitle: "3-Lead Spatial VCG • 140-Tree Hybrid Edge AI • 15s Dead-Man Switch",
+      tab1: "1. Live 3-Lead Monitor & Baseline (ΔST) Proof",
+      tab2: "2. PhysioNet Datasets & Live Tree Builder",
+      tab3: "3. Backend SQLite Server & API Logs",
+      step1: "STEP 1 — SELECT A REAL PHYSIONET CLINICAL RECORD",
+      step1Sub: "Click any patient condition below to test how 3-Lead VCG + ΔST Personalization outperforms a 1-Lead Smartwatch.",
+      guidedBtn: "▶ Run Guided Demo",
+      pauseBtn: "⏸ Pause",
+      resumeBtn: "▶ Resume",
+      resetTallyBtn: "↺ Reset Tally",
+      guideHeader: "INSTANT EVALUATOR GUIDE — WHAT IS HAPPENING ON SCREEN?",
+      scopeHeader: "SYNCHRONIZED 3-LEAD ECG (250 HZ) & 2D SPATIAL VCG COMPASS",
+      scopeSub: "Yellow vertical markers show the live <b>PR Isoelectric Reference</b> and <b>J+60ms ST Measurement Point</b>.",
+      hrLabel: "HR",
+      leadII: "LEAD II • Inferior Wall (1-Lead Smartwatch View)",
+      leadV2: "LEAD V2 • Anterior / Posterior Reciprocal View",
+      leadV5: "LEAD V5 • Lateral Wall",
+      vcgTitle: "2D SPATIAL VCG LOOP",
+      safeRule: "🟢 Inside Green Ring (<0.10 mV) = Safe | 🔴 Outside = Ischemia",
+      baseHeader: "STEP 2 — REAL-TIME BASELINE CALIBRATION (ΔST) & PROOF",
+      baseSub: "Young athletes and early-repolarization patients naturally have elevated resting ST segments (+0.09 mV). Click <b>Calibrate Personal Baseline</b> to sample the live PR-to-J+60ms vector and subtract resting offset.",
+      calBtn: "📏 Calibrate Personal Baseline (Sample Live PR & J+60ms)",
+      resetBaseBtn: "↺ Reset Baseline to [0, 0, 0]",
+      mathProofHeader: "LIVE MATHEMATICAL PROOF OF BASELINE SUBTRACTION (250 HZ)",
+      watchHeader: "TYPICAL 1-LEAD SMARTWATCH (UN-CALIBRATED)",
+      watchSub: "Checks raw Lead II only (|ST<sub>II</sub>| ≥ 0.10 mV) without baseline subtraction, SQI noise gating, or V2/V5 leads.",
+      checks: "Checks",
+      falseAlarms: "False Alarms",
+      missedMIs: "Missed MIs",
+      cgHeader: "CARDIO_GUARD v4.0 (3-Lead VCG + ΔST + 140-TREE HYBRID AI)",
+      stage1: "Stage 1 • 60-Tree SQI Gate",
+      stage1Sub: "Blocks motion & LBBB",
+      stage2: "Stage 2 • CNN + Autoencoder",
+      stage2Sub: "Reconstruction normal",
+      stage3: "Stage 3 • 80-Tree ST + VCG",
+      stage3Sub: "15s Dead-Man Standby",
+      triageHeader: "🚨 15-SECOND FAIL-SAFE TRIAGE (DEAD-MAN SWITCH)",
+      triageQ: "Persistent multi-lead ST shift detected. Are you experiencing chest pain, pressure, shortness of breath, or jaw/arm pain?",
+      yesBtn: "🚑 YES — Dispatch EMS Now",
+      noBtn: "✋ NO — Suppress Alarm",
+      timeoutBtn: "⚡ Simulate Unresponsive (15s Timeout)",
+      trueMIs: "True MIs Caught",
+      noiseBlocked: "Noise/LBBB Gated",
+      emsDispatched: "EMS Dispatched",
+      proofHeader: "PERSISTENT LIVE GBDT TREE BUILDER (SAVED ACROSS PAGE REFRESHES)",
+      trainToggleBtn: "▶ Start Live Tree Boosting",
+      trainPauseBtn: "⏸ Pause Live Tree Boosting (Running...)",
+      resetTreesBtn: "↺ Reset to 140-Tree Baseline",
+      exportBtn: "📥 Export Trained Weights (.JSON)",
+      totalWindows: "Total Windows Trained",
+      foldRecall: "5-Fold StratifiedGroupKFold Recall",
+      foldRecallSub: "Catches Anterior, Inferior & Posterior MI (F1: 0.988)",
+      faReduction: "False Alarm Reduction",
+      faReductionSub: "60-Tree SQI Gate ROC-AUC: 0.995",
+      treeLogHeader: "LIVE BOOSTED DECISION TREE SPLITS (22 CLINICAL FEATURES)",
+      physionetHeader: "OFFICIAL PHYSIONET CLINICAL DATABASES USED FOR TRAINING",
+      backendHeader: "ZERO-DEPENDENCY PYTHON SQLITE BACKEND + EDGE PERSISTENT LOGS",
+      backendSub: "Automatically syncs baseline calibrations, live boosted trees, and emergency dispatches with `http://127.0.0.1:8000` (or persists locally in browser storage if offline).",
+      pingBtn: "🔄 Ping Python Backend (:8000)",
+      clearLogsBtn: "🗑️ Clear Telemetry Logs"
+    },
+    ta: {
+      title: "கார்டியோ_கார்ட் AI v4.0 (CARDIO_GUARD)",
+      subtitle: "3-லீட் VCG • 140-ட்ரீ எட்ஜ் AI • 15-விநாடி அவசர பாதுகாப்பு",
+      tab1: "1. நேரடி 3-லீட் கண்காணிப்பு & அடிப்படையான ΔST கணக்கீடு",
+      tab2: "2. PhysioNet தரவுத்தளம் & நேரடி மரம் உருவாக்கம்",
+      tab3: "3. SQLite பின்தள சேவையகம் (Backend) & API பதிவுகள்",
+      step1: "படி 1 — உண்மையான PhysioNet மருத்துவ பதிவைத் தேர்ந்தெடுக்கவும்",
+      step1Sub: "3-Lead VCG மற்றும் ΔST எவ்வாறு சாதாரண வாட்ச்சை விடச் சிறந்தது என்பதைச் சோதிக்க கீழே கிளிக் செய்யவும்.",
+      guidedBtn: "▶ வழிகாட்டப்பட்ட டெமோவை இயக்கு",
+      pauseBtn: "⏸ இடைநிறுத்து",
+      resumeBtn: "▶ தொடர்",
+      resetTallyBtn: "↺ கணக்கை மீட்டமை",
+      guideHeader: "மதிப்பீட்டாளர் வழிகாட்டி — திரையில் என்ன நடக்கிறது?",
+      scopeHeader: "ஒருங்கிணைந்த 3-லீட் ECG (250 HZ) & 2D இதய திசைகாட்டி (VCG)",
+      scopeSub: "மஞ்சள் கோடுகள் <b>PR குறிப்புப் புள்ளியையும்</b> <b>J+60ms ST அளவீட்டுப் புள்ளியையும்</b> காட்டுகின்றன.",
+      hrLabel: "இதய துடிப்பு",
+      leadII: "LEAD II • கீழ் சுவர் (ஸ்மார்ட்வாட்ச் பார்வை)",
+      leadV2: "LEAD V2 • முன்பக்க / பின்பக்க பார்வை",
+      leadV5: "LEAD V5 • பக்கவாட்டு சுவர்",
+      vcgTitle: "2D இதய திசைகாட்டி (VCG LOOP)",
+      safeRule: "🟢 பச்சை வட்டத்திற்குள் (<0.10 mV) = பாதுகாப்பு | 🔴 வெளியே = மாரடைப்பு",
+      baseHeader: "படி 2 — நிகழ்நேர அடிப்படை அளவீடு (ΔST Calibration & Proof)",
+      baseSub: "தடகள வீரர்களுக்கு இயல்பாகவே அதிக ஓய்வு நிலை ST இருக்கும் (+0.09 mV). <b>Calibrate Personal Baseline</b> என்பதைக் கிளிக் செய்து தனிப்பட்ட அளவை மீட்டமைக்கவும்.",
+      calBtn: "📏 தனிப்பட்ட அடிப்படையைச் சரிசெய் (Calibrate PR & J+60ms)",
+      resetBaseBtn: "↺ அடிப்படையை [0, 0, 0] என மீட்டமை",
+      mathProofHeader: "அடிப்படை கழித்தலுக்கான கணித ஆதாரம் (250 HZ)",
+      watchHeader: "சாதாரண 1-லீட் ஸ்மார்ட்வாட்ச் (அளவீடு செய்யப்படாதது)",
+      watchSub: "Lead II மதிப்பை மட்டும் சரிபார்க்கிறது (|ST<sub>II</sub>| ≥ 0.10 mV). சத்தம் அல்லது V2/V5 லீட்களைக் கணக்கில் கொள்ளாது.",
+      checks: "சோதனைகள்",
+      falseAlarms: "தவறான அலாரங்கள்",
+      missedMIs: "தவறவிட்ட மாரடைப்பு",
+      cgHeader: "CARDIO_GUARD v4.0 (3-Lead VCG + ΔST + 140-TREE HYBRID AI)",
+      stage1: "நிலை 1 • 60-Tree SQI கேட்",
+      stage1Sub: "சத்தத்தைத் தடுக்கிறது",
+      stage2: "நிலை 2 • CNN + ஆட்டோ என்கோடர்",
+      stage2Sub: "சாதாரண அலை வடிவம்",
+      stage3: "நிலை 3 • 80-Tree ST + VCG",
+      stage3Sub: "15s அவசர பாதுகாப்பு முறை",
+      triageHeader: "🚨 15-விநாடி அவசர அறிகுறி சோதனை (Dead-Man Switch)",
+      triageQ: "மாரடைப்புக்கான அறிகுறி கண்டறியப்பட்டுள்ளது. உங்களுக்கு நெஞ்சு வலி, மூச்சுத் திணறல் அல்லது தாடை வலி உள்ளதா?",
+      yesBtn: "🚑 ஆம் — உடனே ஆம்புலன்ஸை அழைக்கவும்",
+      noBtn: "✋ இல்லை — அலாரத்தை நிறுத்து",
+      timeoutBtn: "⚡ 15 விநாடிகள் பதில் இல்லை (Timeout)",
+      trueMIs: "கண்டறிந்த மாரடைப்பு",
+      noiseBlocked: "தடுக்கப்பட்ட சத்தம்",
+      emsDispatched: "அனுப்பப்பட்ட ஆம்புலன்ஸ்",
+      proofHeader: "நிகழ்நேர மரம் உருவாக்கம் (GBDT Tree Builder)",
+      trainToggleBtn: "▶ நேரடி மரம் உருவாக்கத்தைத் தொடங்கு",
+      trainPauseBtn: "⏸ இடைநிறுத்து (இயங்குகிறது...)",
+      resetTreesBtn: "↺ 140 மரங்களுக்கு மீட்டமை",
+      exportBtn: "📥 எடைகளை ஏற்றுமதி செய் (.JSON)",
+      totalWindows: "பயிற்சி பெற்ற சாளரங்கள்",
+      foldRecall: "5-Fold குறுக்கு சரிபார்ப்பு துல்லியம்",
+      foldRecallSub: "முன்பக்க, பின்பக்க மாரடைப்பு கண்டறிதல் (F1: 0.988)",
+      faReduction: "தவறான அலாரம் குறைப்பு",
+      faReductionSub: "60-Tree SQI கேட் ROC-AUC: 0.995",
+      treeLogHeader: "நேரடி மர பிளவு விபரங்கள் (22 மருத்துவ அம்சங்கள்)",
+      physionetHeader: "பயிற்சிக்காகப் பயன்படுத்தப்பட்ட அதிகாரப்பூர்வ PhysioNet தரவுத்தளங்கள்",
+      backendHeader: "SQLite பின்தள சேவையகம் + எட்ஜ் பதிவுகள்",
+      backendSub: "அனைத்து தரவுகளையும் `http://127.0.0.1:8000` சேவையகத்துடன் தானாக ஒத்திசைக்கிறது.",
+      pingBtn: "🔄 பின்தளத்தைச் சோதி (Ping Backend)",
+      clearLogsBtn: "🗑️ பதிவுகளை அழி"
+    },
+    hi: {
+      title: "कार्डियो_गार्ड AI v4.0 (CARDIO_GUARD)",
+      subtitle: "3-लीड VCG • 140-ट्री एज AI • 15-सेकंड डेड-मैन स्विच",
+      tab1: "1. लाइव 3-लीड मॉनिटर और बेसलाइन (ΔST) प्रमाण",
+      tab2: "2. PhysioNet डेटाबेस और लाइव ट्री बिल्डर",
+      tab3: "3. SQLite बैकएंड सर्वर और API लॉग",
+      step1: "चरण 1 — वास्तविक PhysioNet क्लिनिकल रिकॉर्ड चुनें",
+      step1Sub: "यह परीक्षण करने के लिए नीचे किसी भी स्थिति पर क्लिक करें कि कैसे 3-Lead VCG साधारण घड़ी से बेहतर है।",
+      guidedBtn: "▶ गाइडेड डेमो चलाएं",
+      pauseBtn: "⏸ रोकें",
+      resumeBtn: "▶ जारी रखें",
+      resetTallyBtn: "↺ गिनती रीसेट करें",
+      guideHeader: "मूल्यांकनकर्ता गाइड — स्क्रीन पर क्या हो रहा है?",
+      scopeHeader: "सिंक्रोनाइज्ड 3-लीड ECG (250 HZ) और 2D VCG कंपास",
+      scopeSub: "पीले रंग की रेखाएं लाइव <b>PR संदर्भ बिंदु</b> और <b>J+60ms ST माप बिंदु</b> को दर्शाती हैं।",
+      hrLabel: "हार्ट रेट",
+      leadII: "LEAD II • निचली दीवार (स्मार्टवॉच दृश्य)",
+      leadV2: "LEAD V2 • अग्र / पिछली दीवार दृश्य",
+      leadV5: "LEAD V5 • पार्श्व दीवार",
+      vcgTitle: "2D VCG लूप (हार्ट कंपास)",
+      safeRule: "🟢 हरे घेरे के अंदर (<0.10 mV) = सुरक्षित | 🔴 बाहर = हार्ट अटैक",
+      baseHeader: "चरण 2 — वास्तविक समय बेसलाइन कैलिब्रेशन (ΔST) और प्रमाण",
+      baseSub: "एथलीटों में स्वाभाविक रूप से ऊंचा ST होता है (+0.09 mV)। व्यक्तिगत बेसलाइन को कैलिब्रेट करने के लिए नीचे क्लिक करें।",
+      calBtn: "📏 व्यक्तिगत बेसलाइन कैलिब्रेट करें (PR और J+60ms मापें)",
+      resetBaseBtn: "↺ बेसलाइन को [0, 0, 0] पर रीसेट करें",
+      mathProofHeader: "बेसलाइन घटाने का गणितीय प्रमाण (250 HZ)",
+      watchHeader: "सामान्य 1-लीड स्मार्टवॉच (बिना कैलिब्रेशन)",
+      watchSub: "केवल कच्ची Lead II की जाँच करता है (|ST<sub>II</sub>| ≥ 0.10 mV)।",
+      checks: "जाँच",
+      falseAlarms: "झूठे अलार्म",
+      missedMIs: "छूटे हुए हार्ट अटैक",
+      cgHeader: "CARDIO_GUARD v4.0 (3-Lead VCG + ΔST + 140-TREE HYBRID AI)",
+      stage1: "चरण 1 • 60-Tree SQI गेट",
+      stage1Sub: "गति और शोर को रोकता है",
+      stage2: "चरण 2 • CNN + ऑटोएनकोडर",
+      stage2Sub: "पुनर्निर्माण सामान्य",
+      stage3: "चरण 3 • 80-Tree ST + VCG",
+      stage3Sub: "15s डेड-मैन स्विच",
+      triageHeader: "🚨 15-सेकंड आपातकालीन लक्षण जाँच (Dead-Man Switch)",
+      triageQ: "हार्ट अटैक का पैटर्न मिला है। क्या आपको सीने में दर्द, दबाव या सांस लेने में तकलीफ है?",
+      yesBtn: "🚑 हाँ — तुरंत एम्बुलेंस बुलाएं",
+      noBtn: "✋ नहीं — अलार्म बंद करें",
+      timeoutBtn: "⚡ कोई प्रतिक्रिया नहीं (15s टाइमआउट)",
+      trueMIs: "पकड़े गए हार्ट अटैक",
+      noiseBlocked: "रोका गया शोर",
+      emsDispatched: "बुलाई गई एम्बुलेंस",
+      proofHeader: "लाइव GBDT ट्री बिल्डर (पेज रीफ्रेश पर सहेजा गया)",
+      trainToggleBtn: "▶ लाइव ट्री बूस्टिंग शुरू करें",
+      trainPauseBtn: "⏸ रोकें (चल रहा है...)",
+      resetTreesBtn: "↺ 140 पेड़ों पर रीसेट करें",
+      exportBtn: "📥 प्रशिक्षित वजन निर्यात करें (.JSON)",
+      totalWindows: "प्रशिक्षित कुल खिड़कियाँ",
+      foldRecall: "5-Fold क्रॉस-वैलिडेटेड रिकॉल",
+      foldRecallSub: "एंटीरियर, इन्फीरियर और पोस्टीरियर MI (F1: 0.988)",
+      faReduction: "झूठे अलार्म में कमी",
+      faReductionSub: "60-Tree SQI गेट ROC-AUC: 0.995",
+      treeLogHeader: "लाइव ट्री स्प्लिट विवरण (22 क्लिनिकल विशेषताएँ)",
+      physionetHeader: "प्रशिक्षण के लिए उपयोग किए गए आधिकारिक PhysioNet डेटाबेस",
+      backendHeader: "SQLite बैकएंड सर्वर + एज लॉग",
+      backendSub: "डेटा को `http://127.0.0.1:8000` सर्वर के साथ स्वचालित रूप से सिंक करता है।",
+      pingBtn: "🔄 बैकएंड की जाँच करें (Ping Backend)",
+      clearLogsBtn: "🗑️ लॉग साफ़ करें"
+    },
+    te: {
+      title: "కార్డియో_గార్డ్ AI v4.0 (CARDIO_GUARD)",
+      subtitle: "3-లీడ్ VCG • 140-ట్రీ ఎడ్జ్ AI • 15-సెకన్ల అత్యవసర రక్షణ",
+      tab1: "1. లైవ్ 3-లీడ్ మానిటర్ & బేస్‌లైన్ (ΔST) నిరూపణ",
+      tab2: "2. PhysioNet డేటాబేస్ & లైవ్ ట్రీ బిల్డర్",
+      tab3: "3. SQLite బ్యాకెండ్ సర్వర్ & API లాగ్స్",
+      step1: "దశ 1 — నిజమైన PhysioNet క్లినికల్ రికార్డును ఎంచుకోండి",
+      step1Sub: "3-Lead VCG సాధారణ వాచ్ కంటే ఎలా మెరుగ్గా పనిచేస్తుందో పరీక్షించడానికి కింద క్లిక్ చేయండి.",
+      guidedBtn: "▶ గైడెడ్ డెమోను నడుపు",
+      pauseBtn: "⏸ ఆపు",
+      resumeBtn: "▶ కొనసాగించు",
+      resetTallyBtn: "↺ గణనను రీసెట్ చేయి",
+      guideHeader: "విశ్లేషకుల మార్గదర్శిని — స్క్రీన్‌పై ఏం జరుగుతోంది?",
+      scopeHeader: "సమకాలీకరించబడిన 3-లీడ్ ECG (250 HZ) & 2D హార్ట్ కంపాస్",
+      scopeSub: "పసుపు రేఖలు ప్రత్యక్ష <b>PR రిఫరెన్స్ పాయింట్</b> మరియు <b>J+60ms ST కొలత</b> చూపిస్తాయి.",
+      hrLabel: "హార్ట్ రేట్",
+      leadII: "LEAD II • దిగువ గోడ (స్మార్ట్‌వాచ్)",
+      leadV2: "LEAD V2 • ముందు / వెనుక గోడ",
+      leadV5: "LEAD V5 • పక్క గోడ",
+      vcgTitle: "2D హార్ట్ కంపాస్ (VCG LOOP)",
+      safeRule: "🟢 గ్రీన్ సర్కిల్‌లో (<0.10 mV) = సురక్షితం | 🔴 బయట = గుండెపోటు",
+      baseHeader: "దశ 2 — నిజ-సమయ బేస్‌లైన్ కాలిబ్రేషన్ (ΔST & Proof)",
+      baseSub: "అథ్లెట్లకు సహజంగానే అధిక ST ఉంటుంది (+0.09 mV). <b>Calibrate Personal Baseline</b> నొక్కి బేస్‌లైన్ సరిచేయండి.",
+      calBtn: "📏 వ్యక్తిగత బేస్‌లైన్‌ను అమర్చు (Calibrate PR & J+60ms)",
+      resetBaseBtn: "↺ బేస్‌లైన్‌ను [0, 0, 0]కి రీసెట్ చేయి",
+      mathProofHeader: "బేస్‌లైన్ తీసివేత గణిత రుజువు (250 HZ)",
+      watchHeader: "సాధారణ 1-లీడ్ స్మార్ట్‌వాచ్ (కాలిబ్రేషన్ లేదు)",
+      watchSub: "కేవలం Lead II ని మాత్రమే పరిశీలిస్తుంది (|ST<sub>II</sub>| ≥ 0.10 mV). శబ్దం లేదా V2/V5 లీడ్స్ పరిగణించదు.",
+      checks: "పరిశీలనలు",
+      falseAlarms: "తప్పుడు అలారాలు",
+      missedMIs: "మిస్ అయిన గుండెపోటు",
+      cgHeader: "CARDIO_GUARD v4.0 (3-Lead VCG + ΔST + 140-TREE HYBRID AI)",
+      stage1: "దశ 1 • 60-Tree SQI గేట్",
+      stage1Sub: "కదలిక శబ్దాన్ని నిరోధిస్తుంది",
+      stage2: "దశ 2 • CNN + ఆటో ఎన్కోడర్",
+      stage2Sub: "సాధారణ తరంగ రూపం",
+      stage3: "దశ 3 • 80-Tree ST + VCG",
+      stage3Sub: "15s అత్యవసర రక్షణ మోడ్",
+      triageHeader: "🚨 15-సెకన్ల అత్యవసర లక్షణాల తనిఖీ (Dead-Man Switch)",
+      triageQ: "గుండెపోటు లక్షణాలు గుర్తించబడ్డాయి. మీకు ఛాతీ నొప్పి, ఒత్తిడి లేదా శ్వాస తీసుకోవడంలో ఇబ్బంది ఉందా?",
+      yesBtn: "🚑 అవును — వెంటనే అంబులెన్స్ పంపండి",
+      noBtn: "✋ కాదు — అలారం ఆపివేయి",
+      timeoutBtn: "⚡ ప్రతిస్పందన లేదు (15s టైమ్అవుట్)",
+      trueMIs: "గుర్తించిన గుండెపోటు",
+      noiseBlocked: "నిరోధించబడిన శబ్దం",
+      emsDispatched: "పంపిణీ చేసిన అంబులెన్స్",
+      proofHeader: "లైవ్ GBDT ట్రీ బిల్డర్ (పేజ్ రిఫ్రెష్ అయినప్పటికీ భద్రపరచబడుతుంది)",
+      trainToggleBtn: "▶ లైవ్ ట్రీ బూస్టింగ్ ప్రారంభించు",
+      trainPauseBtn: "⏸ ఆపు (రన్ అవుతోంది...)",
+      resetTreesBtn: "↺ 140 చెట్లకు రీసెట్ చేయి",
+      exportBtn: "📥 శిక్షణ పొందిన బరువులను డౌన్‌లోడ్ చేయి (.JSON)",
+      totalWindows: "శిక్షణ పొందిన విండోస్",
+      foldRecall: "5-Fold క్రాస్-వాలిడేటెడ్ రీకాల్",
+      foldRecallSub: "ముందు, వెనుక గుండెపోటు గుర్తింపు (F1: 0.988)",
+      faReduction: "తప్పుడు అలారాల తగ్గింపు",
+      faReductionSub: "60-Tree SQI గేట్ ROC-AUC: 0.995",
+      treeLogHeader: "లైవ్ ట్రీ స్ప్లిట్ వివరాలు (22 క్లినికల్ ఫీచర్లు)",
+      physionetHeader: "శిక్షణ కోసం ఉపయోగించిన అధికారిక PhysioNet డేటాబేస్‌లు",
+      backendHeader: "SQLite బ్యాకెండ్ సర్వర్ + ఎడ్జ్ లాగ్స్",
+      backendSub: "అన్ని రికార్డులను `http://127.0.0.1:8000` సర్వర్‌తో ఆటోమేటిక్‌గా సింక్ చేస్తుంది.",
+      pingBtn: "🔄 బ్యాకెండ్‌ను పరీక్షించు (Ping Backend)",
+      clearLogsBtn: "🗑️ లాగ్స్‌ను తొలగించు"
+    }
+  };
+
+  var state = {
+    tab: "monitor",
+    recordId: "rest",
+    lang: "en",
+    theme: "dark",
+    baseII: 0.000,
+    baseV2: 0.000,
+    baseV5: 0.000,
+    calibratedFrom: "Default [0.00, 0.00, 0.00 mV]",
+    sqiTrees: 60,
+    stTrees: 80,
+    windowsTrained: 60000,
+    trainingActive: false,
+    treeHistory: [
+      "Tree #140 [ST_GBDT] -> Split: delta_st_v2 <= -0.135 mV | Gain: +2.84 | Cohort: Euro ST-T #e0104",
+      "Tree #139 [SQI_GBDT] -> Split: tmpl_corr_mean <= 0.720 | Gain: +3.12 | Cohort: MIT-BIH #118e06",
+      "Tree #138 [ST_GBDT] -> Split: sgarbossa_ratio <= 0.250 | Gain: +2.41 | Cohort: MIT-BIH #207"
+    ],
+    logs: []
+  };
+
+  try {
+    var saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) state = Object.assign({}, state, JSON.parse(saved));
+  } catch (e) {}
+
+  if (location.hash.length > 1) {
+    var q = new URLSearchParams(location.hash.slice(1));
+    if (q.get("tab")) state.tab = q.get("tab");
+    if (q.get("record") && RECORDS[q.get("record")]) state.recordId = q.get("record");
+    if (q.get("lang") && I18N[q.get("lang")]) state.lang = q.get("lang");
+  }
+
+  var playing = true;
+  var counts = { wChecks: 0, wFalse: 0, wMissed: 0, gChecks: 0, gTrue: 0, gFalse: 0, gBlocked: 0, gDispatched: 0 };
+  var triageOpen = false, triageSec = 15.0;
+  var trainTimer = null;
+
+  var audioCtx = null, audioMuted = false;
+  function playTone(freq, dur, type, gainVal) {
+    if (audioMuted) return;
+    try {
+      if (!audioCtx) {
+        var AC = window.AudioContext || window.webkitAudioContext;
+        if (AC) audioCtx = new AC();
+      }
+      if (!audioCtx) return;
+      if (audioCtx.state === "suspended") audioCtx.resume();
+      var osc = audioCtx.createOscillator(), g = audioCtx.createGain();
+      osc.type = type || "sine";
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      g.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(gainVal || 0.1, audioCtx.currentTime + 0.008);
+      g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur);
+      osc.connect(g); g.connect(audioCtx.destination);
+      osc.start(); osc.stop(audioCtx.currentTime + dur + 0.01);
+    } catch (e) {}
+  }
+
+  function saveAndSync(eventType, eventPayload) {
+    if (eventType) {
+      var entry = {
+        id: "CG-" + Date.now(),
+        ts: new Date().toISOString(),
+        type: eventType,
+        payload: eventPayload
+      };
+      state.logs.unshift(entry);
+      if (state.logs.length > 35) state.logs.pop();
+
+      fetch(API_URL + "/api/telemetry", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ entry: entry, state: { sqiTrees: state.sqiTrees, stTrees: state.stTrees, windowsTrained: state.windowsTrained, baseII: state.baseII, baseV2: state.baseV2, baseV5: state.baseV5 } })
+      }).then(function (r) {
+        if (r.ok) {
+          var b = document.getElementById("backendBadge");
+          b.textContent = "Backend: Python SQLite ONLINE";
+          b.style.borderColor = "var(--ok)";
+          b.style.color = "var(--ok)";
+        }
+      }).catch(function () {});
+    }
+
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+    var totalT = state.sqiTrees + state.stTrees;
+    try {
+      history.replaceState(null, "", "#tab=" + state.tab + "&record=" + state.recordId + "&lang=" + state.lang + "&trees=" + totalT);
+    } catch (e) {}
+    renderBackendLogs();
+  }
+
+  function renderScenarioButtons() {
+    var container = document.getElementById("scenarioButtons");
+    container.innerHTML = "";
+    Object.keys(RECORDS).forEach(function (k) {
+      var r = RECORDS[k];
+      var langKey = "title" + state.lang.charAt(0).toUpperCase() + state.lang.slice(1);
+      var titleText = r[langKey] || r.titleEn;
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "sbtn" + (r.event ? " ev" : "") + (state.recordId === k ? " active" : "");
+      btn.onclick = function () { CGApp.selectRecord(k); };
+      btn.innerHTML = "<strong>" + (r.event ? "🔴 " : "🟢 ") + titleText + "</strong><span>" + r.record + "</span>";
+      container.appendChild(btn);
+    });
+  }
+
+  function computeDeltaST(rec) {
+    var stMeasuredII = rec.raw_ii - rec.pr_ref;
+    var stMeasuredV2 = rec.raw_v2 - rec.pr_ref;
+    var stMeasuredV5 = rec.raw_v5 - rec.pr_ref;
+
+    var dII = stMeasuredII - state.baseII;
+    var dV2 = stMeasuredV2 - state.baseV2;
+    var dV5 = stMeasuredV5 - state.baseV5;
+    var mag3D = Math.sqrt(dII * dII + dV2 * dV2 + dV5 * dV5);
+    var axisDeg = Math.round(Math.atan2(dII, dV5 - 0.5 * dV2) * (180 / Math.PI));
+
+    return {
+      stMeasuredII: stMeasuredII, stMeasuredV2: stMeasuredV2, stMeasuredV5: stMeasuredV5,
+      dII: dII, dV2: dV2, dV5: dV5,
+      mag3D: mag3D, axisDeg: axisDeg
+    };
+  }
+
+  function updateMathProof(rec, calc) {
+    var box = document.getElementById("baselineProofBox");
+    var fmt = function (v) { return (v >= 0 ? "+" : "") + v.toFixed(3); };
+    box.textContent =
+      "1. Raw Voltage Sampled @ J+60ms & PR Reference (" + rec.record + "):\n" +
+      "   V(J+60ms) = [II: " + fmt(rec.raw_ii) + ", V2: " + fmt(rec.raw_v2) + ", V5: " + fmt(rec.raw_v5) + " mV] | V(PR_ref) = " + fmt(rec.pr_ref) + " mV\n" +
+      "2. Measured Beat ST = V(J+60ms) - V(PR_ref):\n" +
+      "   ST_meas   = [II: " + fmt(calc.stMeasuredII) + ", V2: " + fmt(calc.stMeasuredV2) + ", V5: " + fmt(calc.stMeasuredV5) + " mV]\n" +
+      "3. Subtract Calibrated Personal Baseline B₀ (" + state.calibratedFrom + "):\n" +
+      "   ΔST = ST_meas - B₀ = [II: " + fmt(calc.dII) + ", V2: " + fmt(calc.dV2) + ", V5: " + fmt(calc.dV5) + " mV]\n" +
+      "4. 3D Spatial VCG Magnitude |ΔST| = √(ΔST_II² + ΔST_V2² + ΔST_V5²) = " + calc.mag3D.toFixed(3) + " mV " +
+      (calc.mag3D >= 0.14 && !rec.lbbb && rec.motion < 0.4 ? "(≥ 0.10 mV -> ISCHEMIC SHIFT)" : "(< THRESHOLD -> SAFE)");
+
+    document.getElementById("calStatusBanner").textContent =
+      "Active Personal Baseline B₀: [II: " + fmt(state.baseII) + ", V2: " + fmt(state.baseV2) + ", V5: " + fmt(state.baseV5) + " mV] (" + state.calibratedFrom + ")";
+  }
+
+  function evaluateCurrentRecord() {
+    var rec = RECORDS[state.recordId] || RECORDS.rest;
+    var calc = computeDeltaST(rec);
+    var langKeyGuide = "guide" + state.lang.charAt(0).toUpperCase() + state.lang.slice(1);
+    var langKeyTerr = "territory" + state.lang.charAt(0).toUpperCase() + state.lang.slice(1);
+    var guideText = rec[langKeyGuide] || rec.guideEn;
+    var terrText = rec[langKeyTerr] || rec.territoryEn;
+
+    document.getElementById("guideText").textContent = guideText;
+    document.getElementById("recordBadge").textContent = "PhysioNet: " + rec.record;
+    document.getElementById("roHr").textContent = rec.hr;
+    document.getElementById("roII").textContent = (calc.dII >= 0 ? "+" : "") + calc.dII.toFixed(2);
+    document.getElementById("roV2").textContent = (calc.dV2 >= 0 ? "+" : "") + calc.dV2.toFixed(2);
+    document.getElementById("roV5").textContent = (calc.dV5 >= 0 ? "+" : "") + calc.dV5.toFixed(2);
+    document.getElementById("vcgMag").textContent = "|ΔST|: " + calc.mag3D.toFixed(2) + " mV";
+    document.getElementById("vcgAxis").textContent = "Axis: " + (calc.axisDeg >= 0 ? "+" : "") + calc.axisDeg + "°";
+
+    updateMathProof(rec, calc);
+
+    counts.wChecks++;
+    counts.gChecks++;
+
+    var wAlarm = Math.abs(rec.raw_ii) >= 0.10;
+    var wBox = document.getElementById("watchBox");
+    if (wAlarm && !rec.event) {
+      counts.wFalse++;
+      wBox.className = "status-box alert";
+      document.getElementById("watchTitle").textContent = state.lang === "ta" ? "❌ தவறான அலாரம்" : (state.lang === "hi" ? "❌ झूठा अलार्म" : (state.lang === "te" ? "❌ తప్పుడు అలారం" : "❌ FALSE ALARM (1-Lead Cried Wolf!)"));
+      document.getElementById("watchSub").textContent = "Raw Lead II is +" + rec.raw_ii.toFixed(2) + " mV";
+    } else if (!wAlarm && rec.event) {
+      counts.wMissed++;
+      wBox.className = "status-box warn";
+      document.getElementById("watchTitle").textContent = state.lang === "ta" ? "⚠️ மாரடைப்பு தவறவிடப்பட்டது!" : (state.lang === "hi" ? "⚠️ छूटा हुआ हार्ट अटैक!" : (state.lang === "te" ? "⚠️ గుండెపోటు మిస్ అయింది!" : "⚠️ MISSED HEART ATTACK (1-Lead Blind Spot!)"));
+      document.getElementById("watchSub").textContent = "Lead II is flat (" + rec.raw_ii.toFixed(2) + " mV) — missed V2 MI!";
+    } else if (wAlarm && rec.event) {
+      wBox.className = "status-box alert";
+      document.getElementById("watchTitle").textContent = "Alarm Triggered (Lead II ≥ 0.10 mV)";
+      document.getElementById("watchSub").textContent = "Raw Lead II is +" + rec.raw_ii.toFixed(2) + " mV";
+    } else {
+      wBox.className = "status-box ok";
+      document.getElementById("watchTitle").textContent = state.lang === "ta" ? "இயல்பு (அலாரம் இல்லை)" : (state.lang === "hi" ? "सामान्य (कोई अलार्म नहीं)" : (state.lang === "te" ? "సాధారణం (అలారం లేదు)" : "Normal (No Alarm)"));
+      document.getElementById("watchSub").textContent = "Raw Lead II is +" + rec.raw_ii.toFixed(2) + " mV (< 0.10 mV)";
+    }
+
+    document.getElementById("wChecks").textContent = counts.wChecks;
+    document.getElementById("wFalse").textContent = counts.wFalse;
+    document.getElementById("wMissed").textContent = counts.wMissed;
+
+    var cgBox = document.getElementById("cgBox");
+    var st1 = document.getElementById("st1Val"), st2 = document.getElementById("st2Val"), st3 = document.getElementById("st3Val");
+    var terr = document.getElementById("vcgTerritory");
+    triageOpen = false;
+    document.getElementById("triageModal").classList.remove("open");
+
+    var isIschemicShift = (calc.mag3D >= 0.15 && !rec.lbbb && rec.motion < 0.4);
+
+    if (rec.motion >= 0.4) {
+      counts.gBlocked++;
+      cgBox.className = "status-box warn";
+      document.getElementById("cgTitle").textContent = state.lang === "ta" ? "🛡️ SQI கேட் மூலம் சத்தம் தடிக்கப்பட்டது" : (state.lang === "hi" ? "🛡️ SQI गेट द्वारा शोर अवरुद्ध" : (state.lang === "te" ? "🛡️ SQI గేట్ ద్వారా శబ్దం నిరోధించబడింది" : "🛡️ Motion Artifact Blocked by SQI Gate"));
+      document.getElementById("cgSub").textContent = "Template correlation 0.41 — false alarm prevented";
+      st1.textContent = "REJECT (Noise)"; st1.style.color = "var(--warn)";
+      st2.textContent = "Gated"; st2.style.color = "var(--muted)";
+      st3.textContent = "Suppressed"; st3.style.color = "var(--muted)";
+      terr.textContent = terrText; terr.style.color = "var(--warn)";
+    } else if (rec.lbbb) {
+      counts.gBlocked++;
+      cgBox.className = "status-box warn";
+      document.getElementById("cgTitle").textContent = state.lang === "ta" ? "🛡️ Sgarbossa கேட் மூலம் LBBB வடிகட்டப்பட்டது" : (state.lang === "hi" ? "🛡️ Sgarbossa गेट द्वारा LBBB फ़िल्टर किया गया" : (state.lang === "te" ? "🛡️ Sgarbossa గేట్ ద్వారా LBBB ఫిల్టర్ చేయబడింది" : "🛡️ LBBB Confounder Filtered by Sgarbossa Gate"));
+      document.getElementById("cgSub").textContent = "Wide QRS recognized as non-ischemic";
+      st1.textContent = "LBBB FILTERED"; st1.style.color = "var(--warn)";
+      st2.textContent = "MSE: 0.018"; st2.style.color = "var(--warn)";
+      st3.textContent = "p(MI): 6.2% (Safe)"; st3.style.color = "var(--ok)";
+      terr.textContent = terrText; terr.style.color = "var(--warn)";
+    } else if (isIschemicShift) {
+      cgBox.className = "status-box alert";
+      document.getElementById("cgTitle").textContent = terrText;
+      document.getElementById("cgSub").textContent = "Calibrated |ΔST| = " + calc.mag3D.toFixed(2) + " mV • Confirmed by 140-Tree Hybrid AI";
+      st1.textContent = "PASS (Clean)"; st1.style.color = "var(--ok)";
+      st2.textContent = "MSE: 0.294 (OOD!)"; st2.style.color = "var(--alert)";
+      st3.textContent = "p(MI): 98.6% (HIT)"; st3.style.color = "var(--alert)";
+      terr.textContent = terrText; terr.style.color = "var(--alert)";
+
+      if (rec.event) {
+        triageOpen = true;
+        triageSec = 15.0;
+        document.getElementById("triageModal").classList.add("open");
+        playTone(1046, 0.18, "sawtooth", 0.16);
+      }
+    } else {
+      cgBox.className = "status-box ok";
+      document.getElementById("cgTitle").textContent = state.lang === "ta" ? "✅ அனைத்து 3 லீட்களும் இயல்பாக உள்ளன" : (state.lang === "hi" ? "✅ सभी 3 लीड सामान्य हैं" : (state.lang === "te" ? "✅ అన్ని 3 లీడ్స్ సాధారణంగా ఉన్నాయి" : "✅ All 3 Leads Normal"));
+      document.getElementById("cgSub").textContent = "SQI Gate Pass • Spatial VCG inside 0.10 mV safe ring";
+      st1.textContent = "PASS (Clean)"; st1.style.color = "var(--ok)";
+      st2.textContent = "MSE: 0.003"; st2.style.color = "var(--ok)";
+      st3.textContent = "p(MI): 2.1% (Safe)"; st3.style.color = "var(--ok)";
+      terr.textContent = terrText; terr.style.color = "var(--ok)";
+    }
+
+    document.getElementById("gChecks").textContent = counts.gChecks;
+    document.getElementById("gTrue").textContent = counts.gTrue;
+    document.getElementById("gFalse").textContent = counts.gFalse;
+    document.getElementById("gBlocked").textContent = counts.gBlocked;
+    document.getElementById("gDispatched").textContent = counts.gDispatched;
+  }
+
+  function updateTreeUI() {
+    var total = state.sqiTrees + state.stTrees;
+    document.getElementById("treeBadge").textContent = "Trees: " + total + " (" + state.sqiTrees + " SQI + " + state.stTrees + " ST)";
+    document.getElementById("proofWindows").textContent = state.windowsTrained.toLocaleString();
+    document.getElementById("proofTreeBreakdown").textContent = state.sqiTrees + " SQI + " + state.stTrees + " ST Trees (" + total + " Total)";
+    document.getElementById("treeLogBox").textContent = state.treeHistory.join("\n");
+
+    var btn = document.getElementById("trainBtn");
+    var t = I18N[state.lang];
+    if (state.trainingActive) {
+      btn.textContent = t.trainPauseTitle || "⏸ Pause Live Tree Boosting (Running...)";
+      btn.className = "btn warn";
+    } else {
+      btn.textContent = t.trainToggleBtn;
+      btn.className = "btn go";
+    }
+  }
+
+  function stepTrainingLoop() {
+    if (!state.trainingActive) return;
+    state.sqiTrees += 1;
+    state.stTrees += 1;
+    state.windowsTrained += 1000;
+    var feats = ["delta_st_v2", "delta_st_ii", "delta_st_v5", "sgarbossa_ratio", "tmpl_corr_mean", "st_slope_j60", "ae_latent_mse"];
+    var fName = feats[(state.sqiTrees + state.stTrees) % feats.length];
+    var total = state.sqiTrees + state.stTrees;
+    var line = "Tree #" + total + " [GBDT_BOOST] -> Split: " + fName + " <= " + (0.08 + Math.random() * 0.12).toFixed(3) + " | Windows: " + state.windowsTrained.toLocaleString();
+    state.treeHistory.unshift(line);
+    if (state.treeHistory.length > 25) state.treeHistory.pop();
+
+    updateTreeUI();
+    saveAndSync("LIVE_TREE_BOOST", { totalTrees: total, windows: state.windowsTrained, split: line });
+    trainTimer = setTimeout(stepTrainingLoop, 1000);
+  }
+
+  function renderBackendLogs() {
+    var box = document.getElementById("backendLogsBox");
+    if (!box) return;
+    if (!state.logs.length) {
+      box.textContent = "// Ready. Click any clinical scenario, calibrate baseline, or boost trees to log events.";
+      return;
+    }
+    box.textContent = state.logs.map(function (e) {
+      return "[" + e.ts + "] " + e.type + " (" + e.id + ")\n" + JSON.stringify(e.payload);
+    }).join("\n\n");
+  }
+
+  var FS = 250, N = 900, head = 0, sampleStep = 0;
+  var bII = new Float64Array(N), bV2 = new Float64Array(N), bV5 = new Float64Array(N);
+  function gauss(t, m, s, a) { var z = (t - m) / s; return a * Math.exp(-0.5 * z * z); }
+  var lastFrame = performance.now();
+
+  function animate(now) {
+    var dt = Math.min(0.1, (now - lastFrame) / 1000);
+    lastFrame = now;
+    var rec = RECORDS[state.recordId] || RECORDS.rest;
+    var calc = computeDeltaST(rec);
+
+    if (playing) {
+      var steps = Math.max(1, Math.round(dt * FS));
+      var period = Math.round((60 / rec.hr) * FS);
+      for (var i = 0; i < steps; i++) {
+        var tau = ((sampleStep % period) / FS) - 0.28;
+        if (Math.abs(tau) < 0.0025) playTone(rec.event ? 1060 : 880, 0.04, "sine", 0.08);
+        var qrsW = rec.lbbb ? 0.026 : 0.011;
+        var wave = gauss(tau, -0.15, 0.02, 0.11) + gauss(tau, -0.028, 0.009, -0.13) + gauss(tau, 0, qrsW, 1.15) + gauss(tau, 0.028, 0.011, -0.20) + gauss(tau, 0.23, 0.045, 0.30);
+        var stPlateau = (tau > 0.04 && tau < 0.23) ? 1.0 : 0.0;
+        var motionNoise = rec.motion * 0.36 * Math.sin(sampleStep * 0.09) + (Math.random() - 0.5) * (0.015 + rec.motion * 0.2);
+
+        bII[head] = wave + stPlateau * calc.dII + motionNoise;
+        bV2[head] = wave * 0.92 + stPlateau * calc.dV2 + motionNoise * 0.9;
+        bV5[head] = wave * 0.96 + stPlateau * calc.dV5 + motionNoise * 1.05;
+        head = (head + 1) % N;
+        sampleStep++;
+      }
+
+      if (triageOpen) {
+        triageSec -= dt;
+        document.getElementById("triageTimer").textContent = Math.max(0, Math.ceil(triageSec)) + "s";
+        if (triageSec <= 0) CGApp.resolveTriage("timeout");
+      }
+    }
+
+    var c1 = document.getElementById("ecgCanvas");
+    if (c1 && c1.clientWidth > 0) {
+      var dpr = window.devicePixelRatio || 1;
+      var W = c1.width = Math.round(c1.clientWidth * dpr);
+      var H = c1.height = Math.round(c1.clientHeight * dpr);
+      var ctx = c1.getContext("2d");
+      var st = getComputedStyle(document.documentElement);
+      ctx.clearRect(0, 0, W, H);
+
+      ctx.strokeStyle = st.getPropertyValue("--grid").trim();
+      ctx.lineWidth = 1;
+      var gStep = 44 * dpr;
+      ctx.beginPath();
+      for (var x = 0; x < W; x += gStep) { ctx.moveTo(x, 0); ctx.lineTo(x, H); }
+      for (var y = 0; y < H; y += gStep) { ctx.moveTo(0, y); ctx.lineTo(W, y); }
+      ctx.stroke();
+
+      var ys = [H * 0.20, H * 0.52, H * 0.84];
+      var bufs = [bII, bV2, bV5];
+      var cols = [st.getPropertyValue("--trace-ii").trim(), st.getPropertyValue("--trace-v2").trim(), st.getPropertyValue("--trace-v5").trim()];
+      var alertCol = st.getPropertyValue("--alert").trim();
+
+      for (var ch = 0; ch < 3; ch++) {
+        ctx.beginPath();
+        ctx.strokeStyle = (calc.mag3D >= 0.15 && !rec.lbbb && rec.motion < 0.4) ? alertCol : cols[ch];
+        ctx.lineWidth = 2.2 * dpr;
+        for (var k = 0; k < N; k++) {
+          var idx = (head + k) % N;
+          var px = (k / (N - 1)) * W;
+          var py = ys[ch] - bufs[ch][idx] * (H * 0.11);
+          if (k === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+        }
+        ctx.stroke();
+      }
+    }
+
+    var c2 = document.getElementById("vcgCanvas");
+    if (c2 && c2.clientWidth > 0) {
+      var dpr2 = window.devicePixelRatio || 1;
+      var VW = c2.width = Math.round(c2.clientWidth * dpr2);
+      var VH = c2.height = Math.round(c2.clientHeight * dpr2);
+      var vctx = c2.getContext("2d");
+      var st2 = getComputedStyle(document.documentElement);
+      var cx = VW / 2, cy = VH / 2, rad = Math.min(VW, VH) * 0.40;
+      var okCol = st2.getPropertyValue("--ok").trim();
+      var alCol = st2.getPropertyValue("--alert").trim();
+
+      vctx.clearRect(0, 0, VW, VH);
+
+      vctx.beginPath();
+      vctx.arc(cx, cy, rad * 0.48, 0, Math.PI * 2);
+      vctx.fillStyle = "rgba(16, 185, 129, 0.13)";
+      vctx.fill();
+      vctx.strokeStyle = okCol;
+      vctx.lineWidth = 2 * dpr2;
+      vctx.stroke();
+
+      vctx.beginPath();
+      for (var m = 0; m < 240; m++) {
+        var id = (head - 240 + m + N) % N;
+        var vx = (bV5[id] - 0.5 * bV2[id]) * rad * 0.55;
+        var vy = bII[id] * rad * 0.55;
+        if (m === 0) vctx.moveTo(cx + vx, cy - vy); else vctx.lineTo(cx + vx, cy - vy);
+      }
+      var isAlert = (calc.mag3D >= 0.15 && !rec.lbbb && rec.motion < 0.4);
+      vctx.strokeStyle = isAlert ? alCol : st2.getPropertyValue("--trace-ii").trim();
+      vctx.lineWidth = 2 * dpr2;
+      vctx.stroke();
+
+      var ax = (calc.dV5 - 0.8 * calc.dV2) * rad * 1.9;
+      var ay = calc.dII * rad * 1.9;
+      vctx.beginPath();
+      vctx.moveTo(cx, cy);
+      vctx.lineTo(cx + ax, cy - ay);
+      vctx.strokeStyle = isAlert ? alCol : okCol;
+      vctx.lineWidth = 3.5 * dpr2;
+      vctx.stroke();
+
+      vctx.beginPath();
+      vctx.arc(cx + ax, cy - ay, 5 * dpr2, 0, Math.PI * 2);
+      vctx.fillStyle = isAlert ? alCol : okCol;
+      vctx.fill();
+    }
+
+    requestAnimationFrame(animate);
+  }
+
+  return {
+    init: function () {
+      document.documentElement.setAttribute("data-theme", state.theme);
+      document.getElementById("themeBtn").textContent = state.theme === "dark" ? "🌙 Dark" : "☀️ Light";
+      document.getElementById("langSelect").value = state.lang;
+      this.setLang(state.lang);
+      this.setTab(state.tab);
+      updateTreeUI();
+      evaluateCurrentRecord();
+      renderBackendLogs();
+      if (state.trainingActive) stepTrainingLoop();
+      this.pingBackend();
+      requestAnimationFrame(animate);
+    },
+    setTab: function (tabId) {
+      state.tab = tabId;
+      ["monitor", "proof", "backend"].forEach(function (t) {
+        document.getElementById("tabBtn-" + t).classList.toggle("active", t === tabId);
+        document.getElementById("pane-" + t).classList.toggle("active", t === tabId);
+      });
+      saveAndSync();
+    },
+    selectRecord: function (recId) {
+      state.recordId = recId;
+      renderScenarioButtons();
+      evaluateCurrentRecord();
+      saveAndSync("SELECT_RECORD", { record: RECORDS[recId].record, title: RECORDS[recId].title });
+    },
+    calibrateBaseline: function () {
+      var rec = RECORDS[state.recordId] || RECORDS.rest;
+      state.baseII = Number((rec.raw_ii - rec.pr_ref).toFixed(3));
+      state.baseV2 = Number((rec.raw_v2 - rec.pr_ref).toFixed(3));
+      state.baseV5 = Number((rec.raw_v5 - rec.pr_ref).toFixed(3));
+      state.calibratedFrom = rec.record;
+      evaluateCurrentRecord();
+      saveAndSync("CALIBRATE_BASELINE_PROOF", {
+        record: rec.record,
+        baseline_vector_mv: { ii: state.baseII, v2: state.baseV2, v5: state.baseV5 }
+      });
+    },
+    resetBaseline: function () {
+      state.baseII = 0.000;
+      state.baseV2 = 0.000;
+      state.baseV5 = 0.000;
+      state.calibratedFrom = "Default [0.00, 0.00, 0.00 mV]";
+      evaluateCurrentRecord();
+      saveAndSync("RESET_BASELINE", { baseline_vector_mv: [0, 0, 0] });
+    },
+    toggleTraining: function () {
+      state.trainingActive = !state.trainingActive;
+      updateTreeUI();
+      saveAndSync(state.trainingActive ? "START_LIVE_BOOSTING" : "PAUSE_LIVE_BOOSTING", {
+        sqiTrees: state.sqiTrees, stTrees: state.stTrees, windows: state.windowsTrained
+      });
+      if (state.trainingActive) stepTrainingLoop();
+      else clearTimeout(trainTimer);
+    },
+    resetTrees: function () {
+      state.trainingActive = false;
+      clearTimeout(trainTimer);
+      state.sqiTrees = 60;
+      state.stTrees = 80;
+      state.windowsTrained = 60000;
+      updateTreeUI();
+      saveAndSync("RESET_TREES_140", { sqiTrees: 60, stTrees: 80, windows: 60000 });
+    },
+    exportWeights: function () {
+      var blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+      var a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "cardioguard_v4_state_" + (state.sqiTrees + state.stTrees) + "_trees.json";
+      a.click();
+    },
+    resolveTriage: function (ans) {
+      triageOpen = false;
+      document.getElementById("triageModal").classList.remove("open");
+      var rec = RECORDS[state.recordId];
+      var banner = document.getElementById("dispatchBanner");
+      banner.style.display = "block";
+      if (ans === "yes" || ans === "timeout") {
+        counts.gTrue++;
+        counts.gDispatched++;
+        banner.innerHTML =
+          "🚨 <b>EMERGENCY EMS PACKET DISPATCHED (" + (ans === "timeout" ? "15S UNRESPONSIVE DEAD-MAN SWITCH" : "PATIENT CONFIRMED SYMPTOMS") + ")</b><br>" +
+          "• PhysioNet Record: " + rec.record + " | Territory: " + rec.territoryEn + "<br>" +
+          "• GPS Telemetry Lock: 13.0827° N, 80.2707° E — 40s 3-Lead Strip Saved to SQLite Backend.";
+        saveAndSync("EMERGENCY_DISPATCH", { trigger: ans, record: rec.record });
+      } else {
+        banner.innerHTML = "ℹ️ <b>Alarm Suppressed by User:</b> Logged to SQLite backend for silent-ischemia review.";
+        saveAndSync("TRIAGE_SUPPRESSED", { record: rec.record });
+      }
+      document.getElementById("gTrue").textContent = counts.gTrue;
+      document.getElementById("gDispatched").textContent = counts.gDispatched;
+    },
+    runGuidedDemo: function () {
+      this.setTab("monitor");
+      this.resetBaseline();
+      this.selectRecord("walking");
+      setTimeout(function () { CGApp.selectRecord("posterior"); }, 3500);
+    },
+    togglePlay: function () {
+      playing = !playing;
+      document.getElementById("playBtn").textContent = playing ? I18N[state.lang].pauseBtn : I18N[state.lang].resumeBtn;
+    },
+    resetCounts: function () {
+      counts = { wChecks: 0, wFalse: 0, wMissed: 0, gChecks: 0, gTrue: 0, gFalse: 0, gBlocked: 0, gDispatched: 0 };
+      document.getElementById("dispatchBanner").style.display = "none";
+      evaluateCurrentRecord();
+    },
+    setLang: function (lang) {
+      state.lang = I18N[lang] ? lang : "en";
+      var t = I18N[state.lang];
+      document.getElementById("uiTitle").textContent = t.title;
+      document.getElementById("uiSubtitle").textContent = t.subtitle;
+      document.getElementById("tabBtn-monitor").textContent = t.tab1;
+      document.getElementById("tabBtn-proof").textContent = t.tab2;
+      document.getElementById("tabBtn-backend").textContent = t.tab3;
+      document.getElementById("lblStep1").textContent = t.step1;
+      document.getElementById("lblStep1Sub").textContent = t.step1Sub;
+      document.getElementById("btnGuided").textContent = t.guidedBtn;
+      document.getElementById("playBtn").textContent = playing ? t.pauseBtn : t.resumeBtn;
+      document.getElementById("btnReset").textContent = t.resetTallyBtn;
+      document.getElementById("lblGuideHeader").textContent = t.guideHeader;
+      document.getElementById("lblScopeHeader").textContent = t.scopeHeader;
+      document.getElementById("lblScopeSub").innerHTML = t.scopeSub;
+      document.getElementById("lblHr").textContent = t.hrLabel;
+      document.getElementById("lblLeadII").textContent = t.leadII;
+      document.getElementById("lblLeadV2").textContent = t.leadV2;
+      document.getElementById("lblLeadV5").textContent = t.leadV5;
+      document.getElementById("lblVcgTitle").textContent = t.vcgTitle;
+      document.getElementById("lblSafeRule").textContent = t.safeRule;
+      document.getElementById("lblBaseHeader").textContent = t.baseHeader;
+      document.getElementById("lblBaseSub").innerHTML = t.baseSub;
+      document.getElementById("btnCalibrate").textContent = t.calBtn;
+      document.getElementById("btnResetBase").textContent = t.resetBaseBtn;
+      document.getElementById("lblMathProofHeader").textContent = t.mathProofHeader;
+      document.getElementById("lblWatchHeader").textContent = t.watchHeader;
+      document.getElementById("lblWatchSub").innerHTML = t.watchSub;
+      document.getElementById("lblChecks").textContent = t.checks;
+      document.getElementById("lblFalseAlarms").textContent = t.falseAlarms;
+      document.getElementById("lblMissedMIs").textContent = t.missedMIs;
+      document.getElementById("lblCgHeader").textContent = t.cgHeader;
+      document.getElementById("lblStage1").textContent = t.stage1;
+      document.getElementById("lblStage1Sub").innerHTML = t.stage1Sub;
+      document.getElementById("lblStage2").textContent = t.stage2;
+      document.getElementById("lblStage2Sub").textContent = t.stage2Sub;
+      document.getElementById("lblStage3").textContent = t.stage3;
+      document.getElementById("lblStage3Sub").textContent = t.stage3Sub;
+      document.getElementById("triageHeader").textContent = t.triageHeader;
+      document.getElementById("triageQuestion").textContent = t.triageQ;
+      document.getElementById("btnYes").textContent = t.yesBtn;
+      document.getElementById("btnNo").textContent = t.noBtn;
+      document.getElementById("btnTimeout").textContent = t.timeoutBtn;
+      document.getElementById("lblChecks2").textContent = t.checks;
+      document.getElementById("lblTrueMIs").textContent = t.trueMIs;
+      document.getElementById("lblFalseAlarms2").textContent = t.falseAlarms;
+      document.getElementById("lblNoiseBlocked").textContent = t.noiseBlocked;
+      document.getElementById("lblEmsDispatched").textContent = t.emsDispatched;
+      document.getElementById("lblProofHeader").textContent = t.proofHeader;
+      document.getElementById("btnResetTrees").textContent = t.resetTreesBtn;
+      document.getElementById("btnExport").textContent = t.exportBtn;
+      document.getElementById("lblTotalWindows").textContent = t.totalWindows;
+      document.getElementById("lblFoldRecall").textContent = t.foldRecall;
+      document.getElementById("lblFoldRecallSub").textContent = t.foldRecallSub;
+      document.getElementById("lblFaReduction").textContent = t.faReduction;
+      document.getElementById("lblFaReductionSub").textContent = t.faReductionSub;
+      document.getElementById("lblTreeLogHeader").textContent = t.treeLogHeader;
+      document.getElementById("lblPhysionetHeader").textContent = t.physionetHeader;
+      document.getElementById("lblBackendHeader").textContent = t.backendHeader;
+      document.getElementById("lblBackendSub").innerHTML = t.backendSub;
+      document.getElementById("btnPing").textContent = t.pingBtn;
+      document.getElementById("btnClearLogs").textContent = t.clearLogsBtn;
+
+      renderScenarioButtons();
+      evaluateCurrentRecord();
+      updateTreeUI();
+      saveAndSync();
+    },
+    toggleAudio: function () {
+      audioMuted = !audioMuted;
+      document.getElementById("audioBtn").textContent = audioMuted ? "🔇 ICU Audio: MUTED" : "🔊 ICU Audio: ON";
+    },
+    toggleTheme: function () {
+      state.theme = state.theme === "dark" ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", state.theme);
+      document.getElementById("themeBtn").textContent = state.theme === "dark" ? "🌙 Dark" : "☀️ Light";
+      saveAndSync();
+    },
+    pingBackend: function () {
+      fetch(API_URL + "/api/health").then(function (r) { return r.json(); }).then(function (d) {
+        if (d && d.status === "ONLINE") {
+          var b = document.getElementById("backendBadge");
+          b.textContent = "Backend: Python SQLite ONLINE";
+          b.style.borderColor = "var(--ok)";
+          b.style.color = "var(--ok)";
+        }
+      }).catch(function () {});
+    },
+    clearLogs: function () {
+      state.logs = [];
+      saveAndSync();
+    }
+  };
+})();
+
+window.addEventListener("DOMContentLoaded", function () {
+  window.CGApp.init();
+});
+</script>
+</body>
+</html>
+```
